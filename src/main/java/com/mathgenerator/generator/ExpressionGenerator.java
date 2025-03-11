@@ -1,4 +1,4 @@
-package com.mathgenerator;
+package com.mathgenerator.generator;
 
 /**
  * @author redmi k50 ultra

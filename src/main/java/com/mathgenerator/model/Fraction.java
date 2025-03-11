@@ -1,8 +1,8 @@
-package com.mathgenerator;
+package com.mathgenerator.model;
 
 /**
  * @author redmi k50 ultra
  * * @date 2025/3/11
  */
-public class Validator {
+public class Fraction {
 }
