@@ -29,8 +29,8 @@ public class Main {
                 System.out.println("Number parameter -n is required and must be greater than 0.");
                 return;
             }
-            if (!(r > 0 && r < 10)) {
-                System.out.println("Range parameter -r is required and  must be between 1 and 9.");
+            if (!(r > 0 && r <= 10)) {
+                System.out.println("Range parameter -r is required and  must be between 1 and 10 (not including 10).");
                 return;
             }
 

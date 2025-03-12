@@ -171,17 +171,19 @@ public class ExpressionGenerator {
      * @return 生成的数字字符串
      */
     private String generateNumber() {
+        int maxRange = Math.min(range, 9); // 确保最大范围不超过9
+
         if (random.nextBoolean()) {
-            // 生成1到range/2的整数，避免数字过大
-            return Integer.toString(random.nextInt(range/2) + 1);
+            // 生成1到maxRange的整数
+            return Integer.toString(random.nextInt(maxRange) + 1);
         } else {
             // 生成真分数或带分数，但概率降低
             if (random.nextInt(3) != 0) { // 66.7%的概率生成整数
-                return Integer.toString(random.nextInt(range/2) + 1);
+                return Integer.toString(random.nextInt(maxRange) + 1);
             }
             
-            int numerator = random.nextInt(range/2 - 1) + 1;
-            int denominator = random.nextInt(range/2 - 1) + 2; // 确保分母至少为2
+            int numerator = random.nextInt(maxRange - 1) + 1; // 分子范围1到maxRange-1
+            int denominator = random.nextInt(maxRange - 1) + 2; // 分母范围2到maxRange，确保分母至少为2
             
             if (numerator >= denominator) {
                 // 生成带分数，确保分子小于分母且整数部分较小
