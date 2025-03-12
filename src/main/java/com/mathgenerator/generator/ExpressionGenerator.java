@@ -24,7 +24,7 @@ public class ExpressionGenerator {
         
         do {
             // 随机生成1到3个运算符
-            int operatorCount = random.nextInt(3) + 1; // 确保至少有1个运算符
+            int operatorCount = random.nextInt(3) + 1;
             expression = generateSimpleExpression(operatorCount);
             try {
                 result = ExpressionEvaluator.evaluate(expression);
@@ -41,48 +41,39 @@ public class ExpressionGenerator {
     }
 
     private String generateSimpleExpression(int operatorCount) {
-        // 生成第一个数
+        if (operatorCount == 0) {
+            return generateNumber();
+        }
+        
+        // 生成简单的线性表达式
         StringBuilder expression = new StringBuilder(generateNumber());
-        
-        // 确保至少生成一个运算符和一个操作数
-        char operator = generateOperator();
-        String nextNumber = generateNumber();
-        
-        // 检查第一个运算是否有效
-        try {
-            Fraction leftValue = ExpressionEvaluator.evaluate(expression.toString());
-            Fraction rightValue = ExpressionEvaluator.evaluate(nextNumber);
+        for (int i = 0; i < operatorCount; i++) {
+            char operator = generateOperator();
+            String nextNumber = generateNumber();
             
-            // 处理减法和除法的特殊情况
-            while ((operator == '-' && leftValue.compareTo(rightValue) < 0) ||
-                   (operator == '÷' && (leftValue.compareTo(rightValue) >= 0 || rightValue.getNumerator() == 0))) {
-                nextNumber = generateNumber();
-                rightValue = ExpressionEvaluator.evaluate(nextNumber);
-            }
-            
-            expression.append(" ").append(operator).append(" ").append(nextNumber);
-            
-            // 继续生成剩余的运算符和操作数
-            for (int i = 1; i < operatorCount; i++) {
-                operator = generateOperator();
-                nextNumber = generateNumber();
+            // 检查减法和除法的特殊情况
+            try {
+                Fraction leftValue = ExpressionEvaluator.evaluate(expression.toString());
+                Fraction rightValue = ExpressionEvaluator.evaluate(nextNumber);
                 
-                leftValue = ExpressionEvaluator.evaluate(expression.toString());
-                rightValue = ExpressionEvaluator.evaluate(nextNumber);
+                if (operator == '-' && leftValue.compareTo(rightValue) < 0) {
+                    // 如果左值小于右值，重新生成一个较小的右值
+                    continue;
+                }
                 
-                // 处理减法和除法的特殊情况
-                while ((operator == '-' && leftValue.compareTo(rightValue) < 0) ||
-                       (operator == '÷' && (leftValue.compareTo(rightValue) >= 0 || rightValue.getNumerator() == 0))) {
-                    nextNumber = generateNumber();
-                    rightValue = ExpressionEvaluator.evaluate(nextNumber);
+                if (operator == '÷') {
+                    // 确保除法结果是真分数
+                    if (leftValue.compareTo(rightValue) >= 0 || rightValue.getNumerator() == 0) {
+                        continue;
+                    }
                 }
                 
                 expression.append(" ").append(operator).append(" ").append(nextNumber);
+                
+            } catch (Exception e) {
+                i--; // 重试这个运算符
+                continue;
             }
-            
-        } catch (Exception e) {
-            // 如果出现异常，重新生成表达式
-            return generateSimpleExpression(operatorCount);
         }
         
         return expression.toString();
