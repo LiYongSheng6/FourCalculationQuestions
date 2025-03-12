@@ -23,8 +23,8 @@ public class ExpressionGenerator {
         Fraction result;
         
         do {
-            // 随机生成1到3个运算符
-            int operatorCount = random.nextInt(3) + 1;
+            // 修改这里：确保至少有1个运算操作数（2-3之间的随机数）
+            int operatorCount = random.nextInt(2) + 2;  // 这样会生成2或3
             expression = generateSimpleExpression(operatorCount);
             try {
                 result = ExpressionEvaluator.evaluate(expression);
