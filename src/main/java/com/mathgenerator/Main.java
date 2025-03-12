@@ -25,8 +25,8 @@ public class Main {
             int n = Integer.parseInt(args[1]);
             int r = Integer.parseInt(args[3]);
 
-            if (r == 0) {
-                System.out.println("Range parameter -r is required.");
+            if (r <= 0 || r > 10) {
+                System.out.println("Range parameter -r must be between 1 and 9.");
                 return;
             }
 
@@ -34,7 +34,10 @@ public class Main {
             Set<String> expressions = new HashSet<>();
             while (expressions.size() < n) {
                 ExpressionResult result = generator.generateExpression();
-                expressions.add(result.getExpression());
+                String normalizedExpression = generator.normalizeExpression(result.getExpression());
+                if (!expressions.contains(normalizedExpression)) {
+                    expressions.add(normalizedExpression);
+                }
             }
 
             // 将题目和答案写入文件
