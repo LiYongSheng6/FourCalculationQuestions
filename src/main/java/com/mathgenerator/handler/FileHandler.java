@@ -19,9 +19,17 @@ import java.io.*;
  * @author redmi k50 ultra
  * * @date 2025/3/11
  */
+/**
+ * 文件处理类
+ * 负责处理题目和答案的文件读写操作
+ */
 public class FileHandler {
 
-    // 将生成的题目写入文件（使用 UTF-8 编码）
+    /**
+     * 将生成的题目写入文件（使用 UTF-8 编码）
+     * @param expressions 题目集合
+     * @param fileName 输出文件名
+     */
     public static void writeExpressions(Set<String> expressions, String fileName) throws FileNotFoundException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8))) {
             int index = 1;
@@ -34,7 +42,11 @@ public class FileHandler {
         }
     }
 
-    // 将答案写入文件（使用 UTF-8 编码）
+    /**
+     * 将答案写入文件（使用 UTF-8 编码）
+     * @param expressions 题目集合
+     * @param fileName 答案文件名
+     */
     public static void writeAnswers(Set<String> expressions, String fileName) {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8))) {
             int index = 1;
@@ -53,7 +65,12 @@ public class FileHandler {
         }
     }
 
-    // 对比答案文件并生成统计结果（使用 UTF-8 编码）
+    /**
+     * 对比答案文件并生成统计结果（使用 UTF-8 编码）
+     * @param exerciseFile 练习题文件
+     * @param answerFile 答案文件
+     * @param gradeFile 成绩报告文件
+     */
     public static void gradeAnswers(String exerciseFile, String answerFile, String gradeFile) {
         try (BufferedReader exerciseReader = new BufferedReader(new InputStreamReader(new FileInputStream(exerciseFile), StandardCharsets.UTF_8));
              BufferedReader answerReader = new BufferedReader(new InputStreamReader(new FileInputStream(answerFile), StandardCharsets.UTF_8));

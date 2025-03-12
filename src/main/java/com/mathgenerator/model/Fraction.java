@@ -4,11 +4,19 @@ package com.mathgenerator.model;
  * @author redmi k50 ultra
  * * @date 2025/3/11
  */
+/**
+ * 分数类
+ * 用于表示和处理分数运算
+ */
 public class Fraction {
-    private int numerator;
-    private int denominator;
+    private int numerator;    // 分子
+    private int denominator;  // 分母
 
-    // 构造函数：接受分子和分母
+    /**
+     * 分数构造函数
+     * @param numerator 分子
+     * @param denominator 分母
+     */
     public Fraction(int numerator, int denominator) {
         if (denominator == 0) {
             throw new IllegalArgumentException("Denominator cannot be zero.");
@@ -18,7 +26,10 @@ public class Fraction {
         simplify();
     }
 
-    // 构造函数：接受字符串形式的分数（如 "3/4" 或 "2'3/8"）
+    /**
+     * 从字符串构造分数
+     * @param fractionStr 分数字符串（如"3/4"或"2'3/8"）
+     */
     public Fraction(String fractionStr) {
         if (fractionStr.contains("'")) {
             // 处理带分数（如 "2'3/8"）
@@ -42,7 +53,9 @@ public class Fraction {
         simplify();
     }
 
-    // 简化分数
+    /**
+     * 简化分数
+     */
     private void simplify() {
         int gcd = gcd(Math.abs(numerator), Math.abs(denominator));
         numerator /= gcd;
@@ -53,7 +66,9 @@ public class Fraction {
         }
     }
 
-    // 计算最大公约数
+    /**
+     * 计算最大公约数
+     */
     private int gcd(int a, int b) {
         return b == 0 ? a : gcd(b, a % b);
     }

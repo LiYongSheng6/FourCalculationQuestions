@@ -6,18 +6,26 @@ import com.mathgenerator.service.ExpressionEvaluator;
 import java.util.Random;
 
 /**
- * @author redmi k50 ultra
- * * @date 2025/3/11
+ * 表达式生成器类
+ * 用于生成四则运算表达式
  */
 public class ExpressionGenerator {
-    private final Random random;
-    private final int range;
+    private final Random random;  // 随机数生成器
+    private final int range;      // 数值范围上限
 
+    /**
+     * 构造函数
+     * @param range 生成数字的范围上限
+     */
     public ExpressionGenerator(int range) {
         this.random = new Random();
         this.range = range;
     }
 
+    /**
+     * 生成一个有效的四则运算表达式
+     * @return 包含表达式和结果的ExpressionResult对象
+     */
     public ExpressionResult generateExpression() {
         String expression;
         Fraction result;
@@ -40,6 +48,11 @@ public class ExpressionGenerator {
         return new ExpressionResult(expression, result);
     }
 
+    /**
+     * 生成简单的线性表达式
+     * @param operatorCount 运算符的数量
+     * @return 生成的表达式字符串
+     */
     private String generateSimpleExpression(int operatorCount) {
         if (operatorCount == 0) {
             return generateNumber();
@@ -79,6 +92,10 @@ public class ExpressionGenerator {
         return expression.toString();
     }
 
+    /**
+     * 生成一个随机数（整数或分数）
+     * @return 生成的数字字符串
+     */
     private String generateNumber() {
         if (random.nextBoolean()) {
             // 生成1到range-1的整数
@@ -100,11 +117,20 @@ public class ExpressionGenerator {
         }
     }
 
+    /**
+     * 随机生成一个运算符
+     * @return 运算符字符
+     */
     private char generateOperator() {
         char[] operators = {'+', '-', '×', '÷'};
         return operators[random.nextInt(operators.length)];
     }
 
+    /**
+     * 验证计算结果是否有效
+     * @param result 计算结果
+     * @return 如果结果有效返回true，否则返回false
+     */
     private boolean isValidResult(Fraction result) {
         // 检查结果是否为负数
         if (result.getNumerator() < 0 || result.getDenominator() < 0) {
@@ -117,6 +143,10 @@ public class ExpressionGenerator {
         return true;
     }
 
+    /**
+     * 表达式结果内部类
+     * 用于存储表达式及其计算结果
+     */
     public static class ExpressionResult {
         private final String expression;
         private final Fraction result;
