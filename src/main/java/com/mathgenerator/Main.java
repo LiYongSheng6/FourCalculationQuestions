@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        if (args.length < 2) {
+        if (args.length < 4) {
             System.out.println("Usage: Myapp.exe -n <number> -r <range>");
             System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt");
             return;
@@ -25,8 +25,12 @@ public class Main {
             int n = Integer.parseInt(args[1]);
             int r = Integer.parseInt(args[3]);
 
-            if (r == 0) {
-                System.out.println("Range parameter -r is required.");
+            if (n <= 0) {
+                System.out.println("Number parameter -n is required and must be greater than 0.");
+                return;
+            }
+            if (!(r > 0 && r < 10)) {
+                System.out.println("Range parameter -r is required and  must be between 1 and 9.");
                 return;
             }
 
@@ -35,9 +39,7 @@ public class Main {
             while (expressions.size() < n) {
                 ExpressionResult result = generator.generateExpression();
                 String normalizedExpression = generator.normalizeExpression(result.getExpression());
-                if (!expressions.contains(normalizedExpression)) {
-                    expressions.add(normalizedExpression);
-                }
+                expressions.add(normalizedExpression);
             }
 
             // 将题目和答案写入文件
