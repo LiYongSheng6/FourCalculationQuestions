@@ -47,7 +47,7 @@ public class Main {
             FileHandler.writeExpressions(expressions, args[5]);
             FileHandler.writeAnswers(expressions, args[7]);
 
-            System.out.println("生成题目和答案成功！\n题目已写入" + args[5] + "\n答案已写入" + args[7] + "。");
+            System.out.println("生成题目和答案成功！\n题目已写入" + args[5] + "\n答案已写入" + args[7]);
         }
         // 处理对比答案的逻辑
         else if ("-e".equals(args[0]) && "-a".equals(args[2])) {
