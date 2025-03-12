@@ -25,8 +25,8 @@ public class Main {
             int n = Integer.parseInt(args[1]);
             int r = Integer.parseInt(args[3]);
 
-            if (r <= 0 || r > 10) {
-                System.out.println("Range parameter -r must be between 1 and 9.");
+            if (r == 0) {
+                System.out.println("Range parameter -r is required.");
                 return;
             }
 

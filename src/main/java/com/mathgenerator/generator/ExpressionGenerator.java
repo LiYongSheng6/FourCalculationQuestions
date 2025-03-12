@@ -4,10 +4,6 @@ import com.mathgenerator.model.Fraction;
 import com.mathgenerator.service.ExpressionEvaluator;
 
 import java.util.Random;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.StringBuilder;
 
 /**
  * 表达式生成器类
@@ -148,65 +144,26 @@ public class ExpressionGenerator {
 
     /**
      * 标准化表达式，使相同的题目具有相同的形式
+     * @param expression 原始表达式
+     * @return 标准化后的表达式
      */
     public String normalizeExpression(String expression) {
         // 分割表达式
         String[] parts = expression.split(" ");
-        
-        // 首先处理结合律
-        // 对于连续的加法或乘法，将所有操作数排序
-        List<String> numbers = new ArrayList<>();
-        List<String> plusOps = new ArrayList<>();
-        List<String> timesOps = new ArrayList<>();
-        
-        for (int i = 0; i < parts.length; i++) {
-            if (i % 2 == 0) {
-                numbers.add(parts[i]);
-            } else {
-                if (parts[i].equals("+")) {
-                    plusOps.add(parts[i]);
-                } else if (parts[i].equals("×")) {
-                    timesOps.add(parts[i]);
-                }
-            }
-        }
-        
-        // 如果是连续的加法或乘法，对操作数排序
-        if (plusOps.size() > 1 || timesOps.size() > 1) {
-            List<Fraction> fractions = new ArrayList<>();
-            for (String num : numbers) {
-                try {
-                    fractions.add(ExpressionEvaluator.evaluate(num));
-                } catch (Exception e) {
-                    return expression; // 如果无法解析，返回原表达式
-                }
-            }
-            Collections.sort(fractions); // 对操作数排序
-            
-            // 重建表达式
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < fractions.size(); i++) {
-                result.append(fractions.get(i));
-                if (i < plusOps.size()) {
-                    result.append(" + ");
-                } else if (i < timesOps.size()) {
-                    result.append(" × ");
-                }
-            }
-            return result.toString();
-        }
-        
-        // 处理单个运算符的交换律
         StringBuilder result = new StringBuilder();
+        
+        // 对于加法和乘法，对操作数排序
         for (int i = 0; i < parts.length; i++) {
             if (i % 2 == 1) { // 运算符位置
                 if (parts[i].equals("+") || parts[i].equals("×")) {
+                    // 比较前后两个操作数，确保较小的在前
                     String prev = parts[i-1];
                     String next = parts[i+1];
                     try {
                         Fraction prevF = ExpressionEvaluator.evaluate(prev);
                         Fraction nextF = ExpressionEvaluator.evaluate(next);
                         if (prevF.compareTo(nextF) > 0) {
+                            // 交换操作数
                             parts[i-1] = next;
                             parts[i+1] = prev;
                         }
