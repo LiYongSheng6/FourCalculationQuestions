@@ -32,7 +32,7 @@ public class ExpressionGenerator {
         Fraction result;
         
         do {
-            // 修改这里：生成1-3个运算符
+            // 生成1-3个运算符
             int operatorCount = random.nextInt(3) + 1;  // 这样会生成1,2,3
             expression = generateSimpleExpression(operatorCount);
             try {
@@ -45,6 +45,11 @@ public class ExpressionGenerator {
                 continue;
             }
         } while (true);
+
+        // 新增检查，确保最终结果不为负数
+        if (result.getNumerator() < 0) {
+            return generateExpression(); // 重新生成表达式
+        }
 
         return new ExpressionResult(expression, result);
     }
@@ -106,6 +111,11 @@ public class ExpressionGenerator {
                                 continue;
                             }
                             tempResult = currentResult.subtract(nextValue);
+                            // 新增检查，确保中间结果不为负数
+                            if (tempResult.getNumerator() < 0) {
+                                attempts++;
+                                continue;
+                            }
                             break;
                         case '×':
                             // 更严格地限制乘法结果的大小
@@ -126,6 +136,11 @@ public class ExpressionGenerator {
                                 continue;
                             }
                             tempResult = currentResult.divide(nextValue);
+                            // 新增检查，确保中间结果不为负数
+                            if (tempResult.getNumerator() < 0) {
+                                attempts++;
+                                continue;
+                            }
                             break;
                         default: // 加法
                             tempResult = currentResult.add(nextValue);
