@@ -4,6 +4,7 @@ import com.mathgenerator.model.Fraction;
 import com.mathgenerator.service.ExpressionEvaluator;
 
 import java.util.Random;
+import java.util.ArrayList;
 
 /**
  * 表达式生成器类
@@ -54,38 +55,112 @@ public class ExpressionGenerator {
      * @return 生成的表达式字符串
      */
     private String generateSimpleExpression(int operatorCount) {
-        // 生成简单的线性表达式
-        StringBuilder expression = new StringBuilder(generateNumber());
-        int successfulOperators = 0;  // 跟踪成功添加的运算符数量
+        StringBuilder expression = new StringBuilder();
+        ArrayList<String> numbers = new ArrayList<>();
+        ArrayList<Character> operators = new ArrayList<>();
         
-        while (successfulOperators < operatorCount) {
-            char operator = generateOperator();
-            String nextNumber = generateNumber();
+        // 首先生成第一个数
+        numbers.add(generateNumber());
+        Fraction currentResult = ExpressionEvaluator.evaluate(numbers.get(0));
+        
+        // 记录连续的运算符
+        char lastOperator = ' ';
+        int consecutiveCount = 0;
+        
+        // 生成剩余的数字和运算符
+        for (int i = 0; i < operatorCount; i++) {
+            char operator;
+            String nextNumber;
+            boolean validCombination = false;
             
-            // 检查减法和除法的特殊情况
-            try {
-                Fraction leftValue = ExpressionEvaluator.evaluate(expression.toString());
-                Fraction rightValue = ExpressionEvaluator.evaluate(nextNumber);
+            int maxAttempts = 10;
+            int attempts = 0;
+            
+            while (!validCombination && attempts < maxAttempts) {
+                operator = generateOperator();
                 
-                if (operator == '-' && leftValue.compareTo(rightValue) < 0) {
-                    // 如果左值小于右值，重试
-                    continue;
-                }
-                
-                if (operator == '÷') {
-                    // 确保除法结果是真分数
-                    if (leftValue.compareTo(rightValue) >= 0 || rightValue.getNumerator() == 0) {
+                // 避免连续使用相同的运算符超过两次
+                if (operator == lastOperator) {
+                    consecutiveCount++;
+                    if (consecutiveCount >= 2) {
+                        attempts++;
                         continue;
                     }
+                } else {
+                    consecutiveCount = 0;
                 }
                 
-                expression.append(" ").append(operator).append(" ").append(nextNumber);
-                successfulOperators++;  // 只有在成功添加运算符后才增加计数
+                nextNumber = generateNumber();
                 
-            } catch (Exception e) {
-                // 如果计算出错，继续尝试
-                continue;
+                try {
+                    Fraction nextValue = ExpressionEvaluator.evaluate(nextNumber);
+                    Fraction tempResult;
+                    
+                    // 根据运算符进行特殊处理
+                    switch (operator) {
+                        case '-':
+                            // 确保减法后的结果为正数且不太接近0
+                            if (currentResult.compareTo(nextValue) <= 0 || 
+                                currentResult.subtract(nextValue).getNumerator() < currentResult.getNumerator() / 4) {
+                                attempts++;
+                                continue;
+                            }
+                            tempResult = currentResult.subtract(nextValue);
+                            break;
+                        case '×':
+                            // 更严格地限制乘法结果的大小
+                            tempResult = currentResult.multiply(nextValue);
+                            if (tempResult.getNumerator() > range || 
+                                (nextValue.getDenominator() != 1 && currentResult.getDenominator() != 1)) {
+                                // 避免两个分数相乘
+                                attempts++;
+                                continue;
+                            }
+                            break;
+                        case '÷':
+                            // 确保除数不为0且结果为合适的分数
+                            if (nextValue.getNumerator() == 0 || 
+                                currentResult.compareTo(nextValue) >= 0 ||
+                                nextValue.getDenominator() > range/2) {
+                                attempts++;
+                                continue;
+                            }
+                            tempResult = currentResult.divide(nextValue);
+                            break;
+                        default: // 加法
+                            tempResult = currentResult.add(nextValue);
+                            // 限制加法结果不要过大
+                            if (tempResult.getNumerator() > range * 2) {
+                                attempts++;
+                                continue;
+                            }
+                            break;
+                    }
+                    
+                    if (isValidResult(tempResult)) {
+                        currentResult = tempResult;
+                        operators.add(operator);
+                        numbers.add(nextNumber);
+                        lastOperator = operator;
+                        validCombination = true;
+                    }
+                } catch (Exception e) {
+                    attempts++;
+                    continue;
+                }
+                attempts++;
             }
+            
+            if (!validCombination) {
+                // 如果多次尝试都失败，减少运算符数量重新生成
+                return generateSimpleExpression(Math.max(1, operatorCount - 1));
+            }
+        }
+        
+        // 构建最终表达式
+        expression.append(numbers.get(0));
+        for (int i = 0; i < operators.size(); i++) {
+            expression.append(" ").append(operators.get(i)).append(" ").append(numbers.get(i + 1));
         }
         
         return expression.toString();
@@ -97,15 +172,20 @@ public class ExpressionGenerator {
      */
     private String generateNumber() {
         if (random.nextBoolean()) {
-            // 生成1到range-1的整数
-            return Integer.toString(random.nextInt(range - 1) + 1);
+            // 生成1到range/2的整数，避免数字过大
+            return Integer.toString(random.nextInt(range/2) + 1);
         } else {
-            // 生成真分数
-            int numerator = random.nextInt(range - 1) + 1;
-            int denominator = random.nextInt(range - 1) + 1;
+            // 生成真分数或带分数，但概率降低
+            if (random.nextInt(3) != 0) { // 66.7%的概率生成整数
+                return Integer.toString(random.nextInt(range/2) + 1);
+            }
+            
+            int numerator = random.nextInt(range/2 - 1) + 1;
+            int denominator = random.nextInt(range/2 - 1) + 2; // 确保分母至少为2
+            
             if (numerator >= denominator) {
-                // 如果分子大于等于分母，转换为带分数
-                int whole = numerator / denominator;
+                // 生成带分数，确保分子小于分母且整数部分较小
+                int whole = Math.min(2, numerator / denominator); // 限制整数部分最大为2
                 numerator = numerator % denominator;
                 if (numerator == 0) {
                     return Integer.toString(whole);
@@ -132,13 +212,20 @@ public class ExpressionGenerator {
      */
     private boolean isValidResult(Fraction result) {
         // 检查结果是否为负数
-        if (result.getNumerator() < 0 || result.getDenominator() < 0) {
+        if (result.getNumerator() < 0 || result.getDenominator() <= 0) {
             return false;
         }
+        
+        // 检查结果是否过大
+        if (result.getNumerator() > range * range) {
+            return false;
+        }
+        
         // 检查结果是否为真分数（如果不是整数）
         if (result.getDenominator() != 1) {
             return Math.abs(result.getNumerator()) < Math.abs(result.getDenominator());
         }
+        
         return true;
     }
 
