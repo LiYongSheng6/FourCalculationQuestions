@@ -31,8 +31,8 @@ public class ExpressionGenerator {
         Fraction result;
         
         do {
-            // 修改这里：确保至少有1个运算操作数（2-3之间的随机数）
-            int operatorCount = random.nextInt(2) + 2;  // 这样会生成2或3
+            // 修改这里：生成1-3个运算符
+            int operatorCount = random.nextInt(3) + 1;  // 这样会生成1,2,3
             expression = generateSimpleExpression(operatorCount);
             try {
                 result = ExpressionEvaluator.evaluate(expression);
@@ -54,13 +54,11 @@ public class ExpressionGenerator {
      * @return 生成的表达式字符串
      */
     private String generateSimpleExpression(int operatorCount) {
-        if (operatorCount == 0) {
-            return generateNumber();
-        }
-        
         // 生成简单的线性表达式
         StringBuilder expression = new StringBuilder(generateNumber());
-        for (int i = 0; i < operatorCount; i++) {
+        int successfulOperators = 0;  // 跟踪成功添加的运算符数量
+        
+        while (successfulOperators < operatorCount) {
             char operator = generateOperator();
             String nextNumber = generateNumber();
             
@@ -70,7 +68,7 @@ public class ExpressionGenerator {
                 Fraction rightValue = ExpressionEvaluator.evaluate(nextNumber);
                 
                 if (operator == '-' && leftValue.compareTo(rightValue) < 0) {
-                    // 如果左值小于右值，重新生成一个较小的右值
+                    // 如果左值小于右值，重试
                     continue;
                 }
                 
@@ -82,9 +80,10 @@ public class ExpressionGenerator {
                 }
                 
                 expression.append(" ").append(operator).append(" ").append(nextNumber);
+                successfulOperators++;  // 只有在成功添加运算符后才增加计数
                 
             } catch (Exception e) {
-                i--; // 重试这个运算符
+                // 如果计算出错，继续尝试
                 continue;
             }
         }
