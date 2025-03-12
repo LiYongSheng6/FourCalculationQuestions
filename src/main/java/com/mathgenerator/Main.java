@@ -11,12 +11,13 @@ import java.util.Set;
 /**
  * @author redmi k50 ultra
  * * @date 2025/3/11
+ * @modified YiLaiL
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        if (args.length < 4) {
+        if (args.length < 8 ) {
             System.out.println("Usage: Myapp.exe -n <number> -r <range> -e <exercisefile>.txt -a <answerfile>.txt");
-            System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt");
+            System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt -g <gradefile>.txt");
             return;
         }
 
@@ -50,13 +51,13 @@ public class Main {
             String answerFile = args[3];
 
             // 调用 gradeAnswers 函数对比答案
-            FileHandler.gradeAnswers(exerciseFile, answerFile, "D:\\code\\Java\\FourCalculationQuestions\\FourCalculationQuestions\\src\\main\\resources\\Grade.txt");
+            FileHandler.gradeAnswers(exerciseFile, answerFile,args[5]);
 
             System.out.println("对比答案完成，结果已写入 Grade.txt！");
         } else {
             System.out.println("无效的参数。");
-            System.out.println("Usage: Myapp.exe -n <number> -r <range>");
-            System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt");
+            System.out.println("Usage: Myapp.exe -n <number> -r <range> -e <exercisefile>.txt -a <answerfile>.txt");
+            System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt -g <gradefile>.txt");
         }
     }
 }

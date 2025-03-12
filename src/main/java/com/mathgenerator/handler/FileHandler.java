@@ -72,9 +72,9 @@ public class FileHandler {
      * @param gradeFile 成绩报告文件
      */
     public static void gradeAnswers(String exerciseFile, String answerFile, String gradeFile) {
-        try (BufferedReader exerciseReader = new BufferedReader(new InputStreamReader(new FileInputStream(exerciseFile), StandardCharsets.UTF_8));
-             BufferedReader answerReader = new BufferedReader(new InputStreamReader(new FileInputStream(answerFile), StandardCharsets.UTF_8));
-             BufferedWriter gradeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(gradeFile), StandardCharsets.UTF_8))) {
+        try (BufferedReader exerciseReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(exerciseFile)), StandardCharsets.UTF_8));
+             BufferedReader answerReader = new BufferedReader(new InputStreamReader(Files.newInputStream(Paths.get(answerFile)), StandardCharsets.UTF_8));
+             BufferedWriter gradeWriter = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(gradeFile)), StandardCharsets.UTF_8))) {
 
             String exerciseLine, answerLine;
             int correctCount = 0, wrongCount = 0;

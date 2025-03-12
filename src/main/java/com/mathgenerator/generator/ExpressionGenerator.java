@@ -238,11 +238,10 @@ public class ExpressionGenerator {
         // 分割表达式
         String[] parts = expression.split(" ");
         StringBuilder result = new StringBuilder();
-        
         // 对于加法和乘法，对操作数排序
         for (int i = 0; i < parts.length; i++) {
             if (i % 2 == 1) { // 运算符位置
-                if (parts[i].equals("+") || parts[i].equals("×")) {
+                if ("+".equals(parts[i]) || "×".equals(parts[i])) {
                     // 比较前后两个操作数，确保较小的在前
                     String prev = parts[i-1];
                     String next = parts[i+1];
@@ -263,6 +262,7 @@ public class ExpressionGenerator {
             if (i < parts.length - 1) {
                 result.append(" ");
             }
+
         }
         return result.toString();
     }
