@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        if (args.length < 8 ) {
+        if (args.length < 8) {
             System.out.println("Usage: Myapp.exe -n <number> -r <range> -e <exercisefile>.txt -a <answerfile>.txt");
             System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt -g <gradefile>.txt");
             return;
@@ -26,8 +26,12 @@ public class Main {
             int n = Integer.parseInt(args[1]);
             int r = Integer.parseInt(args[3]);
 
-            if (r == 0) {
-                System.out.println("Range parameter -r is required.");
+            if (n <= 0) {
+                System.out.println("Number parameter -n is required and must be greater than 0.");
+                return;
+            }
+            if (!(r > 0 && r <= 10)) {
+                System.out.println("Range parameter -r is required and must be between 1 and 10 (not including 10).");
                 return;
             }
 
@@ -43,7 +47,7 @@ public class Main {
             FileHandler.writeExpressions(expressions, args[5]);
             FileHandler.writeAnswers(expressions, args[7]);
 
-            System.out.println("生成题目和答案成功！");
+            System.out.println("生成题目和答案成功！\n题目已写入" + args[5] + "\n答案已写入" + args[7] + "。");
         }
         // 处理对比答案的逻辑
         else if ("-e".equals(args[0]) && "-a".equals(args[2])) {
@@ -51,9 +55,9 @@ public class Main {
             String answerFile = args[3];
 
             // 调用 gradeAnswers 函数对比答案
-            FileHandler.gradeAnswers(exerciseFile, answerFile,args[5]);
+            FileHandler.gradeAnswers(exerciseFile, answerFile, args[5]);
 
-            System.out.println("对比答案完成，结果已写入 Grade.txt！");
+            System.out.println("对比答案完成！\n检查结果已写入" + args[5]);
         } else {
             System.out.println("无效的参数。");
             System.out.println("Usage: Myapp.exe -n <number> -r <range> -e <exercisefile>.txt -a <answerfile>.txt");
