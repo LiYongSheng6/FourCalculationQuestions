@@ -15,7 +15,7 @@ import java.util.Set;
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        if (args.length < 8) {
+        if (!(args.length == 6 || args.length ==8)) {
             System.out.println("Usage: Myapp.exe -n <number> -r <range> -e <exercisefile>.txt -a <answerfile>.txt");
             System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt -g <gradefile>.txt");
             return;
