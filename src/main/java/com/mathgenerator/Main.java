@@ -42,9 +42,9 @@ public class Main {
                 expressions.add(normalizedExpression);
             }
 
-            // 将题目和答案写入文件
-            FileHandler.writeExpressions(expressions, "D:\\code\\Java\\FourCalculationQuestions\\FourCalculationQuestions\\src\\main\\resources\\Exercises.txt");
-            FileHandler.writeAnswers(expressions, "D:\\code\\Java\\FourCalculationQuestions\\FourCalculationQuestions\\src\\main\\resources\\Answer.txt");
+            // 将题目和答案写入相对路径的文件
+            FileHandler.writeExpressions(expressions, "src/main/resources/Exercises.txt");
+            FileHandler.writeAnswers(expressions, "src/main/resources/Answer.txt");
 
             System.out.println("生成题目和答案成功！");
         }
@@ -54,7 +54,7 @@ public class Main {
             String answerFile = args[3];
 
             // 调用 gradeAnswers 函数对比答案
-            FileHandler.gradeAnswers(exerciseFile, answerFile, "D:\\code\\Java\\FourCalculationQuestions\\FourCalculationQuestions\\src\\main\\resources\\Grade.txt");
+            FileHandler.gradeAnswers(exerciseFile, answerFile, "src/main/resources/Grade.txt");
 
             System.out.println("对比答案完成，结果已写入 Grade.txt！");
         } else {
