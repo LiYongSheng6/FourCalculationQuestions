@@ -31,7 +31,7 @@ public class FileHandler {
      * @param fileName 输出文件名
      */
     public static void writeExpressions(Set<String> expressions, String fileName) throws FileNotFoundException {
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), StandardCharsets.UTF_8))) {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8))) {
             int index = 1;
             for (String expression : expressions) {
                 writer.write("题目" + index + ": " + expression + " =\n");

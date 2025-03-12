@@ -14,14 +14,14 @@ import java.util.Set;
  */
 public class Main {
     public static void main(String[] args) throws FileNotFoundException {
-        if (args.length < 2) {
-            System.out.println("Usage: Myapp.exe -n <number> -r <range>");
+        if (args.length < 4) {
+            System.out.println("Usage: Myapp.exe -n <number> -r <range> -e <exercisefile>.txt -a <answerfile>.txt");
             System.out.println("   or: Myapp.exe -e <exercisefile>.txt -a <answerfile>.txt");
             return;
         }
 
         // 处理生成题目和答案的逻辑
-        if (args[0].equals("-n") && args[2].equals("-r")) {
+        if ("-n".equals(args[0]) && "-r".equals(args[2])) {
             int n = Integer.parseInt(args[1]);
             int r = Integer.parseInt(args[3]);
 
@@ -35,19 +35,17 @@ public class Main {
             while (expressions.size() < n) {
                 ExpressionResult result = generator.generateExpression();
                 String normalizedExpression = generator.normalizeExpression(result.getExpression());
-                if (!expressions.contains(normalizedExpression)) {
-                    expressions.add(normalizedExpression);
-                }
+                expressions.add(normalizedExpression);
             }
 
             // 将题目和答案写入文件
-            FileHandler.writeExpressions(expressions, "D:\\code\\Java\\FourCalculationQuestions\\FourCalculationQuestions\\src\\main\\resources\\Exercises.txt");
-            FileHandler.writeAnswers(expressions, "D:\\code\\Java\\FourCalculationQuestions\\FourCalculationQuestions\\src\\main\\resources\\Answer.txt");
+            FileHandler.writeExpressions(expressions, args[5]);
+            FileHandler.writeAnswers(expressions, args[7]);
 
             System.out.println("生成题目和答案成功！");
         }
         // 处理对比答案的逻辑
-        else if (args[0].equals("-e") && args[2].equals("-a")) {
+        else if ("-e".equals(args[0]) && "-a".equals(args[2])) {
             String exerciseFile = args[1];
             String answerFile = args[3];
 
