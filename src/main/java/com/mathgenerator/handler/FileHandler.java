@@ -5,14 +5,12 @@ import com.mathgenerator.service.ExpressionEvaluator;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Set;
+import java.util.Map;
 import java.io.*;
 
 /**
@@ -30,13 +28,17 @@ public class FileHandler {
      * @param expressions 题目集合
      * @param fileName 输出文件名
      */
-    public static void writeExpressions(Set<String> expressions, String fileName) throws FileNotFoundException {
+    public static void writeExpressions(Map<String,Fraction> expressions, String fileName){
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8))) {
-            int index = 1;
-            for (String expression : expressions) {
-                writer.write("题目" + index + ": " + expression + " =\n");
-                index++;
-            }
+            int[] index = {1};
+            expressions.forEach((expression,result) -> {
+                try {
+                    writer.write("题目" + index[0] + ": " + expression + " =\n");
+                    index[0]++;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            });
         } catch (IOException e) {
             System.err.println("写入题目文件时出错: " + e.getMessage());
         }
@@ -47,19 +49,19 @@ public class FileHandler {
      * @param expressions 题目集合
      * @param fileName 答案文件名
      */
-    public static void writeAnswers(Set<String> expressions, String fileName) {
+    public static void writeAnswers(Map<String,Fraction> expressions, String fileName){
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8))) {
-            int index = 1;
-            for (String expression : expressions) {
+            final int[] index = {1};
+            expressions.forEach((expression, result) -> {
                 try {
-                    Fraction result = ExpressionEvaluator.evaluate(expression);
-                    writer.write("答案" + index + ": " + result + "\n");
-                } catch (IllegalArgumentException e) {
-                    writer.write("答案" + index + ": 错误 (除零或无效表达式)\n");
-                    System.err.println("计算表达式时出错 - 题目 " + index + ": " + e.getMessage());
+                    writer.write("答案" + index[0] + ": " + result + "\n");
+                } catch (IOException e) {
+                    System.err.println("写入答案文件时出错: " + e.getMessage());
+                    throw new RuntimeException(e);
                 }
-                index++;
-            }
+                index[0]++;
+
+            });
         } catch (IOException e) {
             System.err.println("写入答案文件时出错: " + e.getMessage());
         }

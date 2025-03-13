@@ -42,12 +42,12 @@ public class ExpressionGenerator {
                     break;
                 }
             } catch (Exception e) {
-                continue;
+                System.out.println("生成的表达式无效：" + expression);
             }
         } while (true);
 
         // 新增检查，确保最终结果不为负数
-        if (result.getNumerator() < 0) {
+        if (result.getNumerator() < 0||result.getDenominator() < 0) {
             return generateExpression(); // 重新生成表达式
         }
 
@@ -227,7 +227,7 @@ public class ExpressionGenerator {
      * @param result 计算结果
      * @return 如果结果有效返回true，否则返回false
      */
-    private boolean isValidResult(Fraction result) {
+    public boolean isValidResult(Fraction result) {
         // 检查结果是否为负数
         if (result.getNumerator() < 0 || result.getDenominator() <= 0) {
             return false;
@@ -283,6 +283,8 @@ public class ExpressionGenerator {
         }
         return result.toString();
     }
+
+
 
     /**
      * 表达式结果内部类

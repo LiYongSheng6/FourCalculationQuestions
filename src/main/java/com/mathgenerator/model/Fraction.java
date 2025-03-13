@@ -4,6 +4,9 @@ package com.mathgenerator.model;
  * @author redmi k50 ultra
  * * @date 2025/3/11
  */
+
+import static com.mathgenerator.constant.GlobalConstant.*;
+
 /**
  * 分数类
  * 用于表示和处理分数运算
@@ -31,7 +34,7 @@ public class Fraction {
      * @param fractionStr 分数字符串（如"3/4"或"2'3/8"）
      */
     public Fraction(String fractionStr) {
-        if (fractionStr.contains("'")) {
+        if (fractionStr.contains(APOSTROPHE)) {
             // 处理带分数（如 "2'3/8"）
             String[] parts = fractionStr.split("'");
             int whole = Integer.parseInt(parts[0]);
@@ -107,8 +110,8 @@ public class Fraction {
     // 重写 equals 方法，用于比较两个分数是否相等
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj) {return true;}
+        if (obj == null || getClass() != obj.getClass()) {return false;}
         Fraction other = (Fraction) obj;
         return this.numerator == other.numerator && this.denominator == other.denominator;
     }
