@@ -46,21 +46,39 @@ public class FileHandler {
 
     /**
      * 将答案写入文件（使用 UTF-8 编码）
-     * @param expressions 题目集合
+     * 在写入答案前会重新计算表达式结果以确保准确性
+     * @param expressions 题目和答案的映射集合
      * @param fileName 答案文件名
      */
-    public static void writeAnswers(Map<String,Fraction> expressions, String fileName){
-        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8))) {
+    public static void writeAnswers(Map<String,Fraction> expressions, String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(
+                new OutputStreamWriter(Files.newOutputStream(Paths.get(fileName)), StandardCharsets.UTF_8))) {
+            
             final int[] index = {1};
             expressions.forEach((expression, result) -> {
                 try {
-                    writer.write("答案" + index[0] + ": " + result + "\n");
+                    // 重新计算表达式的结果
+                    Fraction recalculatedResult;
+                    try {
+                        // 清理表达式：去除首尾空格和末尾等号
+                        String cleanExpression = expression.trim();
+                        if (cleanExpression.endsWith("=")) {
+                            cleanExpression = cleanExpression.substring(0, cleanExpression.length() - 1).trim();
+                        }
+                        // 使用表达式计算器重新计算结果
+                        recalculatedResult = ExpressionEvaluator.evaluate(cleanExpression);
+                    } catch (Exception e) {
+                        // 如果重新计算出错，使用原始结果
+                        recalculatedResult = result;
+                    }
+                    
+                    // 写入答案到文件
+                    writer.write("答案" + index[0] + ": " + recalculatedResult + "\n");
+                    index[0]++;
                 } catch (IOException e) {
                     System.err.println("写入答案文件时出错: " + e.getMessage());
                     throw new RuntimeException(e);
                 }
-                index[0]++;
-
             });
         } catch (IOException e) {
             System.err.println("写入答案文件时出错: " + e.getMessage());
@@ -88,17 +106,16 @@ public class FileHandler {
                 int index = Integer.parseInt(indexStr);
 
                 try {
-                    String expression = exerciseLine.split("=")[0].trim();
+                    // 获取表达式（去掉末尾的等号）
+                    String expression = exerciseLine.split(":")[1].trim();
+                    expression = expression.substring(0, expression.length() - 1).trim();
+                    
+                    // 重新计算表达式结果
                     Fraction expectedResult = ExpressionEvaluator.evaluate(expression);
                     
-                    // 检查答案是否为错误标记
-                    if (answerLine.contains("错误")) {
-                        wrongCount++;
-                        wrongIndices.append(index).append(", ");
-                        continue;
-                    }
-                    
-                    Fraction actualResult = new Fraction(answerLine.split(":")[1].trim());
+                    // 获取答案文件中的结果
+                    String actualResultStr = answerLine.split(":")[1].trim();
+                    Fraction actualResult = new Fraction(actualResultStr);
 
                     if (expectedResult.equals(actualResult)) {
                         correctCount++;
@@ -110,7 +127,6 @@ public class FileHandler {
                 } catch (Exception e) {
                     wrongCount++;
                     wrongIndices.append(index).append(", ");
-                    System.err.println("处理题目 " + index + " 时出错: " + e.getMessage());
                 }
             }
 

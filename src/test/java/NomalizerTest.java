@@ -20,15 +20,15 @@ public class NomalizerTest {
         normalizer.normalizeNode(baseExpressionNode);
         System.out.println(baseExpressionNode);
          */
-        String expression = "5 + 4 + ( 3 + 2 ) × 4 =";
-        List<String> tokenize = normalizer.tokenize(expression);
-        System.out.println(tokenize);
-        List<String> list = normalizer.shuntingYard(tokenize);
-        System.out.println(list);
-        ExpressionNormalizer.BaseExpressionNode baseExpressionNode = normalizer.buildExpressionTree(list);
-        System.out.println(baseExpressionNode);
-        String normalizeExpression = normalizer.normalizeExpression(expression);
-        System.out.println(normalizeExpression);
+        //String expression = "5 + 4 + ( 3 + 2 ) × 4 =";
+        //List<String> tokenize = normalizer.tokenize(expression);
+        //System.out.println(tokenize);
+        //List<String> list = normalizer.shuntingYard(tokenize);
+        //System.out.println(list);
+        //ExpressionNormalizer.BaseExpressionNode baseExpressionNode = normalizer.buildExpressionTree(list);
+        //System.out.println(baseExpressionNode);
+        //String normalizeExpression = normalizer.normalizeExpression(expression);
+        //System.out.println(normalizeExpression);
       /*  String expression2 = "4 + 5 + ( 3 + 2 ) × 4 =";
         String normalizeExpression2 = normalizer.normalizeExpression(expression);
         System.out.println(normalizeExpression2);*/

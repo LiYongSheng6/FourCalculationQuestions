@@ -2,9 +2,11 @@ package com.mathgenerator.generator;
 
 import com.mathgenerator.model.Fraction;
 import com.mathgenerator.service.ExpressionEvaluator;
+import com.mathgenerator.service.ExpressionNormalizer;
 
 import java.util.Random;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 表达式生成器类
@@ -51,6 +53,11 @@ public class ExpressionGenerator {
             return generateExpression(); // 重新生成表达式
         }
 
+        // 添加计算过程的注释
+        StringBuilder process = new StringBuilder();
+        process.append("// ").append(expression).append("\n");
+        process.append("// = ").append(result).append("\n");
+
         return new ExpressionResult(expression, result);
     }
 
@@ -60,6 +67,92 @@ public class ExpressionGenerator {
      * @return 生成的表达式字符串
      */
     private String generateSimpleExpression(int operatorCount) {
+        // 首先生成一个基本的四则运算表达式
+        String expression = generateNormalExpression(operatorCount);
+        
+        // 只有当运算符数量大于1（确保有足够的操作数）且随机概率为50%时才添加括号
+        if (operatorCount > 1 && random.nextBoolean()) {
+            expression = addParentheses(expression);
+        }
+        
+        return expression;
+    }
+
+    /**
+     * 在表达式中添加括号
+     * 只在加减法运算中添加括号，确保括号内至少包含一个加减运算符
+     * @param expression 原始表达式
+     * @return 添加括号后的表达式
+     */
+    private String addParentheses(String expression) {
+        // 按空格分割表达式，得到数字和运算符
+        String[] parts = expression.split(" ");
+        
+        // 找到所有加减法运算符的位置
+        List<Integer> addSubOperatorPositions = new ArrayList<>();
+        for (int i = 0; i < parts.length; i++) {
+            // 只收集加法和减法运算符的位置
+            if (parts[i].equals("+") || parts[i].equals("-")) {
+                addSubOperatorPositions.add(i);
+            }
+        }
+        
+        // 如果没有找到加减法运算符，则返回原表达式
+        if (addSubOperatorPositions.isEmpty()) {
+            return expression;
+        }
+        
+        // 从所有加减法运算符位置中随机选择一个
+        int operatorPos = addSubOperatorPositions.get(random.nextInt(addSubOperatorPositions.size()));
+        
+        // 使用StringBuilder构建新的带括号的表达式
+        StringBuilder result = new StringBuilder();
+        
+        // 遍历表达式的每个部分，在适当位置添加括号
+        for (int i = 0; i < parts.length; i++) {
+            // 在加减法运算符前一个操作数前添加左括号
+            if (i == operatorPos - 1) {
+                result.append("( ");
+            }
+            // 添加当前部分（数字或运算符）
+            result.append(parts[i]).append(" ");
+            
+            // 在运算符后一个操作数后添加右括号
+            if (i == operatorPos + 1) {
+                // 如果后面还有运算符，在当前操作数后添加右括号
+                if (i + 1 < parts.length && (parts[i + 1].equals("+") || parts[i + 1].equals("-") || 
+                    parts[i + 1].equals("×") || parts[i + 1].equals("÷"))) {
+                    result.append(") ");
+                } 
+                // 如果是表达式的最后一个操作数，直接添加右括号
+                else if (i == parts.length - 1) {
+                    result.append(")");
+                }
+            }
+        }
+        
+        // 确保括号正确闭合
+        String resultStr = result.toString().trim();
+        // 如果左括号数量大于右括号数量，在末尾添加右括号
+        if (countChar(resultStr, '(') > countChar(resultStr, ')')) {
+            resultStr += " )";
+        }
+        
+        return resultStr;
+    }
+
+    /**
+     * 计算字符串中特定字符的出现次数
+     * @param str 要检查的字符串
+     * @param target 要计数的目标字符
+     * @return 目标字符在字符串中的出现次数
+     */
+    private int countChar(String str, char target) {
+        return (int) str.chars().filter(ch -> ch == target).count();
+    }
+
+    // 重命名原来的生成逻辑为generateNormalExpression
+    private String generateNormalExpression(int operatorCount) {
         StringBuilder expression = new StringBuilder();
         ArrayList<String> numbers = new ArrayList<>();
         ArrayList<Character> operators = new ArrayList<>();
@@ -182,6 +275,35 @@ public class ExpressionGenerator {
     }
 
     /**
+     * 验证括号的完整性和正确性
+     * @param expression 要验证的表达式
+     * @return 如果括号使用正确返回true，否则返回false
+     */
+    private boolean isValidParentheses(String expression) {
+        int count = 0;
+        boolean hasLeft = false;
+        boolean hasRight = false;
+        
+        // 检查括号是否配对且位置正确
+        for (char c : expression.toCharArray()) {
+            if (c == '(') {
+                count++;
+                hasLeft = true;
+            } else if (c == ')') {
+                count--;
+                hasRight = true;
+            }
+            // 如果count小于0，说明右括号在左括号之前出现
+            if (count < 0) {
+                return false;
+            }
+        }
+        
+        // 确保括号是成对的，且表达式中确实包含了一对括号
+        return count == 0 && hasLeft && hasRight;
+    }
+
+    /**
      * 生成一个随机数（整数或分数）
      * @return 生成的数字字符串
      */
@@ -239,8 +361,9 @@ public class ExpressionGenerator {
         }
         
         // 检查结果是否为真分数（如果不是整数）
-        if (result.getDenominator() != 1) {
-            return Math.abs(result.getNumerator()) < Math.abs(result.getDenominator());
+        if (result.getDenominator() != 1 && 
+            Math.abs(result.getNumerator()) >= Math.abs(result.getDenominator())) {
+            return false;
         }
         
         return true;
@@ -284,7 +407,205 @@ public class ExpressionGenerator {
         return result.toString();
     }
 
+    /**
+     * 表达式树节点类
+     */
+    private abstract class ExpressionNode {
+        String value;  // 数字或运算符
+        ExpressionNode left;
+        ExpressionNode right;
+        boolean needParentheses;
+        
+        public ExpressionNode(String value) {
+            this.value = value;
+        }
+        
+        @Override
+        public abstract String toString();
+    }
 
+    /**
+     * 数字节点类
+     */
+    private class NumberNode extends ExpressionNode {
+        public NumberNode(String value) {
+            super(value);
+        }
+        
+        @Override
+        public String toString() {
+            return value;
+        }
+    }
+
+    /**
+     * 运算符节点类
+     */
+    private class OperatorNode extends ExpressionNode {
+        String operator;
+        
+        public OperatorNode(String operator) {
+            super(operator);
+            this.operator = operator;
+        }
+        
+        @Override
+        public String toString() {
+            if (left == null && right == null) {
+                return operator;
+            }
+            
+            String leftStr = left.toString();
+            String rightStr = right.toString();
+            
+            // 根据运算符优先级决定是否需要括号
+            if (needParentheses) {
+                return "(" + leftStr + " " + operator + " " + rightStr + ")";
+            } else {
+                return leftStr + " " + operator + " " + rightStr;
+            }
+        }
+    }
+
+    /**
+     * 生成表达式树
+     * @param depth 剩余深度
+     * @return 表达式树的根节点
+     */
+    private ExpressionNode generateExpressionTree(int depth) {
+        if (depth == 0 || random.nextInt(3) == 0) {
+            // 生成叶子节点（数字）
+            return new NumberNode(generateNumber());
+        }
+        
+        // 生成运算符节点
+        OperatorNode node = new OperatorNode(String.valueOf(generateOperator()));
+        
+        // 生成左右子树
+        node.left = generateExpressionTree(depth - 1);
+        node.right = generateExpressionTree(depth - 1);
+        
+        try {
+            // 验证当前子树的计算结果
+            String subExpression = node.toString();
+            if (!hasValidParentheses(subExpression)) {
+                return generateExpressionTree(depth);
+            }
+            
+            Fraction result = ExpressionEvaluator.evaluate(subExpression);
+            
+            // 如果子树结果无效，重新生成
+            if (!isValidResult(result)) {
+                return generateExpressionTree(depth);
+            }
+        } catch (Exception e) {
+            // 如果计算出错，重新生成
+            return generateExpressionTree(depth);
+        }
+        
+        return node;
+    }
+
+    /**
+     * 判断当前运算符是否比子节点运算符优先级低
+     */
+    private boolean isLowerPrecedence(String current, ExpressionNode child) {
+        if (!(child instanceof OperatorNode)) return false;
+        
+        OperatorNode childOp = (OperatorNode)child;
+        int currentPrecedence = getOperatorPrecedence(current);
+        int childPrecedence = getOperatorPrecedence(childOp.operator);
+        
+        return currentPrecedence < childPrecedence;
+    }
+
+    /**
+     * 获取运算符优先级
+     */
+    private int getOperatorPrecedence(String operator) {
+        switch (operator) {
+            case "+":
+            case "-":
+                return 1;
+            case "×":
+            case "÷":
+                return 2;
+            default:
+                return 0;
+        }
+    }
+
+    /**
+     * 验证表达式是否有效
+     * @param expression 要验证的表达式
+     * @return 如果表达式有效返回true，否则返回false
+     */
+    private boolean isValidExpression(String expression) {
+        try {
+            // 检查括号是否匹配且合法
+            if (!hasValidParentheses(expression)) {
+                return false;
+            }
+
+            // 如果包含括号，先检查括号内的计算结果
+            if (expression.contains("(")) {
+                int start = expression.indexOf("(");
+                int end = expression.lastIndexOf(")");
+                if (start >= 0 && end >= 0) {
+                    String subExpr = expression.substring(start + 1, end).trim();
+                    Fraction subResult = ExpressionEvaluator.evaluate(subExpr);
+                    // 确保括号内的计算结果也是有效的
+                    if (!isValidResult(subResult)) {
+                        return false;
+                    }
+                }
+            }
+
+            // 检查整个表达式的结果
+            Fraction result = ExpressionEvaluator.evaluate(expression);
+            return isValidResult(result);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    /**
+     * 检查括号是否合法
+     */
+    private boolean hasValidParentheses(String expression) {
+        int count = 0;
+        boolean hasContent = false;
+        
+        // 不允许表达式以右括号开始或左括号结束
+        if (expression.trim().startsWith(")") || expression.trim().endsWith("(")) {
+            return false;
+        }
+        
+        for (int i = 0; i < expression.length(); i++) {
+            char c = expression.charAt(i);
+            if (c == '(') {
+                count++;
+                // 检查左括号后是否有内容
+                hasContent = false;
+            } else if (c == ')') {
+                count--;
+                // 如果括号内没有内容，返回false
+                if (!hasContent) {
+                    return false;
+                }
+            } else if (!Character.isWhitespace(c)) {
+                hasContent = true;
+            }
+            
+            // 如果count小于0，说明右括号多于左括号
+            if (count < 0) {
+                return false;
+            }
+        }
+        
+        // count应该为0，表示括号配对
+        return count == 0;
+    }
 
     /**
      * 表达式结果内部类

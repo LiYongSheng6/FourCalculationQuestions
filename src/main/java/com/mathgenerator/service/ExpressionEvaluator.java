@@ -19,36 +19,40 @@ public class ExpressionEvaluator {
      * @return 计算结果（分数形式）
      */
     public static Fraction evaluate(String expression) {
-        Stack<Fraction> numbers = new Stack<>();
-        Stack<Character> operators = new Stack<>();
-        for (int i = 0; i < expression.length(); i++) {
-            char c = expression.charAt(i);
-            if (Character.isDigit(c) || c == '\'') {
-                StringBuilder sb = new StringBuilder();
-                while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '\'' || expression.charAt(i) == '/')) {
-                    sb.append(expression.charAt(i));
-                    i++;
+        try {
+            Stack<Fraction> numbers = new Stack<>();
+            Stack<Character> operators = new Stack<>();
+            for (int i = 0; i < expression.length(); i++) {
+                char c = expression.charAt(i);
+                if (Character.isDigit(c) || c == '\'') {
+                    StringBuilder sb = new StringBuilder();
+                    while (i < expression.length() && (Character.isDigit(expression.charAt(i)) || expression.charAt(i) == '\'' || expression.charAt(i) == '/')) {
+                        sb.append(expression.charAt(i));
+                        i++;
+                    }
+                    i--;
+                    numbers.push(parseFraction(sb.toString()));
+                } else if (c == '(') {
+                    operators.push(c);
+                } else if (c == ')') {
+                    while (operators.peek() != '(') {
+                        numbers.push(applyOperation(operators.pop(), numbers.pop(), numbers.pop()));
+                    }
+                    operators.pop();
+                } else if (isOperator(c)) {
+                    while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(c)) {
+                        numbers.push(applyOperation(operators.pop(), numbers.pop(), numbers.pop()));
+                    }
+                    operators.push(c);
                 }
-                i--;
-                numbers.push(parseFraction(sb.toString()));
-            } else if (c == '(') {
-                operators.push(c);
-            } else if (c == ')') {
-                while (operators.peek() != '(') {
-                    numbers.push(applyOperation(operators.pop(), numbers.pop(), numbers.pop()));
-                }
-                operators.pop();
-            } else if (isOperator(c)) {
-                while (!operators.isEmpty() && precedence(operators.peek()) >= precedence(c)) {
-                    numbers.push(applyOperation(operators.pop(), numbers.pop(), numbers.pop()));
-                }
-                operators.push(c);
             }
+            while (!operators.isEmpty()) {
+                numbers.push(applyOperation(operators.pop(), numbers.pop(), numbers.pop()));
+            }
+            return numbers.pop();
+        } catch (Exception e) {
+            throw e;
         }
-        while (!operators.isEmpty()) {
-            numbers.push(applyOperation(operators.pop(), numbers.pop(), numbers.pop()));
-        }
-        return numbers.pop();
     }
 
     /**
